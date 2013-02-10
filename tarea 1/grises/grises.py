@@ -58,7 +58,6 @@ def aplicarUmbral(pixeles, MIN, MAX):
 	imagenUmbral = list()
 	for bite in pixeles: 
 		nuevoByte = sum(bite) / 3 #calculamos el promedio del pixel
-		
 		# condiciones para hacer blanco-negro
 		if MIN >= nuevoByte:
 			nuevoByte = 0
@@ -74,44 +73,27 @@ def calcularVecinosCruz(pixeles, indice, ancho):
 	centro = (len(PREWITT_X) + 1) / 2 # mascara de 3x3
 	try:
 		vecinoIzq = max(pixeles[indice - 1])
-		vecinoIzqMascaraX = PREWITT_X[centro - 1]
-		vecinoIzqMascaraY = PREWITT_Y[centro - 1]
-
 	except:
 		# si no tiene vecino izquierdo
 		vecinoIzq = 0
-		vecinoIzqMascaraX = 0
-		vecinoIzqMascaraY = 0
 	# ahora el derecho
 	try:
 		vecinoDer = max(pixeles[indice + 1])
-		vecinoDerMascaraX = PREWITT_X[centro + 1]
-		vecinoDerMascaraY = PREWITT_Y[centro + 1]
 	except:
 		# si no tiene vecino derecho
 		vecinoDer = 0
-		vecinoDerMascaraX = 0
-		vecinoDerMascaraY = 0
 	# ahora el vecino de arriba
 	try:
 		vecinoArriba = max(pixeles[indice - ancho])
-		vecinoArribaMascaraX = PREWITT_X[centro - (len(PREWITT_X) / 3)]
-		vecinoArribaMascaraY = PREWITT_Y[centro - (len(PREWITT_Y) / 3)]
 	except:
 		# si no tiene vecinos de arriba
 		vecinoArriba = 0
-		vecinoArribaMascaraX = 0
-		vecinoArribaMascaraY = 0
 	# el ultimo vecino... el de abajo
 	try:
 		vecinoAbajo = max(pixeles[indice + ancho])
-		vecinoAbajoMascaraX = PREWITT_X[centro + (len(PREWITT_X) / 3)]
-		vecinoAbajoMascaraY = PREWITT_Y[centro + (len(PREWITT_Y) / 3)]
 	except:
 		# si no tiene vecino abajo
 		vecinoAbajo = 0
-		vecinoAbajoMascaraX = 0
-		vecinoAbajoMascaraY = 0
 
 	return (vecinoIzq, vecinoDer, vecinoAbajo, vecinoArriba)
 
