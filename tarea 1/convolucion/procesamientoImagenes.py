@@ -4,13 +4,16 @@ import time
 from pylab import *
 import math
 
-PREWITT_X = [-1, 0, 1, -1, 0, 1, -1, 0, 1] 
-PREWITT_Y = [1, 1, 1, 0, 0, 0, -1, -1, -1]
-
-SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
-SOBEL_Y = [1, 2, 1, 0, 0, 0, -1, -2, -1]
 
 debug = False
+
+def sobel(): 
+	return([-1, 0, 1, -2, 0, 2, -1, 0, 1], \
+		[1, 2, 1, 0, 0, 0, -1, -2, -1])
+
+def prewiit():
+	return([-1, 0, 1, -1, 0, 1, -1, 0, 1], \
+	 	[1, 1, 1, 0, 0, 0, -1, -1, -1])
 
 def generarDatos(argv):
 	try:
@@ -29,8 +32,20 @@ def generarDatos(argv):
 		MAX = int(raw_input("Rango maximo: "))
 		if MAX < 0 or MAX > 255:
 			MAX = 190
+	try:
+		MASCARA = argv[4]
+		MASCARA = MASCARA.lower()
+		MASCARA = globals()[MASCARA]
+	except:
+		MASCARA = raw_input("Mascara(SOBEL || PREWITT) : ")
+		MASCARA = MASCARA.lower()
+		MASCARA = globals()[MASCARA]
+	try:
+		RANGO_BINARIZACION = int(argv[5])
+	except:
+		RANGO_BINARIZACION = int(raw_input("Rango binarizacion: "))
 
-	return(MIN, MAX)
+	return(MIN, MAX, MASCARA, RANGO_BINARIZACION)
 
 def lecturaImagen(NombreImagen):
 	im = Image.open(NombreImagen) # creamos el objeto imagen 
@@ -69,25 +84,31 @@ def aplicarUmbral(pixeles, MIN, MAX):
 	return imagenUmbral
 
 def calcularVecinosCruz(pixeles, indice, ancho):
+	#pixeles = (lista de listas) contiene todos los pixeles de la imagen
+	# indice = (int) es la posicion del pixel actual
+	# ancho = (int) es el ancho de la imagen 
+
 	# primero el izquiero
-	centro = (len(PREWITT_X) + 1) / 2 # mascara de 3x3
 	try:
 		vecinoIzq = max(pixeles[indice - 1])
 	except:
 		# si no tiene vecino izquierdo
 		vecinoIzq = 0
+
 	# ahora el derecho
 	try:
 		vecinoDer = max(pixeles[indice + 1])
 	except:
 		# si no tiene vecino derecho
 		vecinoDer = 0
+
 	# ahora el vecino de arriba
 	try:
 		vecinoArriba = max(pixeles[indice - ancho])
 	except:
 		# si no tiene vecinos de arriba
 		vecinoArriba = 0
+
 	# el ultimo vecino... el de abajo
 	try:
 		vecinoAbajo = max(pixeles[indice + ancho])
@@ -98,25 +119,31 @@ def calcularVecinosCruz(pixeles, indice, ancho):
 	return (vecinoIzq, vecinoDer, vecinoAbajo, vecinoArriba)
 
 def calcularVecinosDiagonales(pixeles, indice, ancho):
+	# pixeles = (lista de listas) contiene todos los pixeles de la imagen
+	# indice = (int) es la posicion del pixel actual
+	# ancho = (int) es el ancho de la imagen 
+
 	# primero el izquiero arriba
 	try:
 		vecinoIzqArriba = max(pixeles[indice - (ancho + 1)])
 	except:
 		# si no tiene vecino izquierdo arriba
 		vecinoIzqArriba = 0
-	# ahora el derecho arriba
+
+	# ahora el derecha arriba
 	try:
 		vecinoDerArriba = max(pixeles[indice - (ancho - 1)])
-
 	except:
-		# si no tiene vecino derecho arriba
+		# si no tiene vecino derecha arriba
 		vecinoDerArriba = 0
+
 	# ahora el vecino izquieda abajo
 	try:
 		vecinoIzqAbajo = max(pixeles[indice + (ancho - 1)])
 	except:
 		# si no tiene vecinos izquierda abajo
 		vecinoIzqAbajo = 0
+
 	# el ultimo vecino... derecha abajo
 	try:
 		vecinoDerAbajo = max(pixeles[indice + (ancho + 1)])
@@ -148,7 +175,7 @@ def ordenarVecinos(vecinosTotales, pixelActual):
 	vecinosOrdenados.append(vecinosTotales.pop(3)) # arriba
 	vecinosOrdenados.append(vecinosTotales.pop(3)) # der arriba
 	vecinosOrdenados.append(vecinosTotales.pop(0)) # izq
-	vecinosOrdenados.append(max(pixelActual) )          # actual
+	vecinosOrdenados.append(max(pixelActual) )     # actual
 	vecinosOrdenados.append(vecinosTotales.pop(0)) # der
 	vecinosOrdenados.append(vecinosTotales.pop(1)) # izq abajo
 	vecinosOrdenados.append(vecinosTotales.pop(0)) # abajo
@@ -156,13 +183,31 @@ def ordenarVecinos(vecinosTotales, pixelActual):
 
 	return vecinosOrdenados
 
+def normalizacion(pixel, MINN, MAXN):
+	rango = MAXN - MINN
+	prop = 256 / rango
+	return int(math.floor((pixel - MINN) * prop))
 
-def aplicarConvolucion(pixeles, ancho):
+def binarizacion(pixel, RANGO_BINARIZACION):
+	if pixel > RANGO_BINARIZACION:
+		return 255
+	else:
+		return 0
+
+def aplicarConvolucion(pixeles, ancho, mascara, RANGO_BINARIZACION):
 	imagenConvolucion = list()
 	imagenNormalizada = list()
+	imegenBinarizada = list()
+	
+	(mascaraX, mascaraY) = mascara()
 
-	MINN = 1000
-	MAXN = 1
+	if debug: 
+		print "X", mascaraX
+		print "Y", mascaraY
+
+	MINN = 1000 # numeros al azar
+	MAXN = 1 # numeros al azar
+
 
 	for indice in range(len(pixeles)):
 		# sacamos los vecinos en cruz
@@ -181,54 +226,48 @@ def aplicarConvolucion(pixeles, ancho):
 		sumaX = 0
 		sumaY = 0
 
-		# multiplicaciones
+		# multiplicaciones de matrices
 		for i in range(len(vecinosOrdenados)):
-			
-			multiplicacionX = vecinosOrdenados[i] * PREWITT_X[i]
-			multiplicacionY = vecinosOrdenados[i] * PREWITT_Y[i]
 
-			sumaX = multiplicacionX + sumaX
-			sumaY = multiplicacionY + sumaY
+			sumaX = (vecinosOrdenados[i] * mascaraX[i]) + sumaX
+			sumaY = (vecinosOrdenados[i] * mascaraY[i]) + sumaY
 
 			#nuevoPixel = int(math.sqrt((sumaX ** 2) + (sumaY ** 2)))
 			nuevoPixel = sumaX + sumaY
 
-
-			if debug: print "++++", nuevoPixel
-
-			# Validacion para convolucion
+			# Validacion para quitar pixeles innecesarios
 			if nuevoPixel > 255:
 				nuevoPixel = 255
-
 			if nuevoPixel < 0:
-				nuevoPixel = 0
+				nuevoPixel = 0			
 
-			# NORMALIZACION
-			#Normalizar la imagen
-			#d -> a[0,255]
-			#chocar[min,max] actual
-			#r = max -min;
-			#Esto ya no lo entendi 
-			#prop = 256/r;	
-			#p= int(flour((p-min)*prop));
 			if nuevoPixel < MINN:
 				MINN = nuevoPixel
 			if nuevoPixel > MAXN:
 				MAXN = nuevoPixel
-			valorNuevo = (nuevoPixel - MINN) / (MAXN- MINN) * 255
-			# FIN DE NORMALIZACION
+			# NORMALIZACION
+			pixelNormalizado = normalizacion(nuevoPixel, MINN, MAXN)
+			# BINARIZACION
+			pixelBinarizado = binarizacion(nuevoPixel, RANGO_BINARIZACION)
 			
-
-		imagenNormalizada.append((valorNuevo, valorNuevo, valorNuevo))
 		imagenConvolucion.append((nuevoPixel, nuevoPixel, nuevoPixel))
-	return (imagenConvolucion, imagenNormalizada)
+		imagenNormalizada.append((pixelNormalizado, pixelNormalizado, pixelNormalizado))
+		imegenBinarizada.append((pixelBinarizado, pixelBinarizado, pixelBinarizado))
+	return (imagenConvolucion, imagenNormalizada, imegenBinarizada)
 
-
-
+def mostrarResumen(MIN, MAX, MASCARA , RANGO_BINARIZACION):
+	print "------------------------------------------------------"
+	print "PARAMETROS NUMERICOS DEL PROGRAMA"
+	print "rango MIN para blanco-negro(umbral):", MIN
+	print "rango MAX para blanco-negro(umbral):", MAX
+	print "Rango para binarizacion:", RANGO_BINARIZACION
+	print "------------------------------------------------------"
+	return
 
 def main(NombreImagen):
 
-	(MIN, MAX) = generarDatos(argv)
+	(MIN, MAX, MASCARA , RANGO_BINARIZACION) = generarDatos(argv)
+	mostrarResumen(MIN, MAX, MASCARA , RANGO_BINARIZACION)
 
 	(pixeles, ancho, alto) = lecturaImagen(NombreImagen)
 	
@@ -238,8 +277,8 @@ def main(NombreImagen):
 	tiempoGrisesFinal = time.time()
 
 	tiempoUmbralInicio = time.time()
-	umbral = aplicarUmbral(pixeles, MIN, MAX) # aplicamos umbral
-	guardarImagen(umbral, ancho, alto, "salidaUMBRAL.png")
+#	umbral = aplicarUmbral(pixeles, MIN, MAX) # aplicamos umbral
+#	guardarImagen(umbral, ancho, alto, "salidaUMBRAL.png")
 	tiempoUmbralFinal = time.time()
 
 	tiempoFiltroInicio = time.time()
@@ -248,16 +287,19 @@ def main(NombreImagen):
 	tiempoFiltroFinal = time.time()
 
 	tiempoConvolucionInicio = time.time()	
-	(convolucion, normalizada) = aplicarConvolucion(grises, ancho)
+	(convolucion, normalizada, binarizada) = aplicarConvolucion(grises, ancho, \
+																MASCARA, RANGO_BINARIZACION)
 	guardarImagen(convolucion, ancho, alto, "salidaCONVO.png")
 	guardarImagen(normalizada, ancho, alto, "salidaNORMA.png")
+	guardarImagen(binarizada, ancho, alto, "salidaBINARI.png")
 	tiempoConvolucionFinal = time.time()
 
-	print "Tiempos"
+	print "TIEMPOS"
 	print "En escala a grises: ", tiempoGrisesFinal - tiempoGrisesInicio, "segundos"
 	print "En umbral: ", tiempoUmbralFinal - tiempoUmbralInicio, "segundos"
 	print "En filtro: ", tiempoFiltroFinal - tiempoFiltroInicio, "segundos"
-	print "En convolucion y normalizacion: ", tiempoConvolucionFinal - tiempoConvolucionInicio, "segundos"
+	print "En convolucion, normalizacion y binarizacion: ", \
+							tiempoConvolucionFinal - tiempoConvolucionInicio, "segundos"
 	return
 
 
@@ -266,5 +308,7 @@ def main(NombreImagen):
 #argv[1] = (string)nombre de la imagen a procesar     #
 #argv[2] = (int)Rango minimo - para el umbral         #
 #argv[3] = (int)Rango maximo - para el umbral         #
+#argv[4] = (string) mascara a usar (sobel || prewiit) #
+#argv[5] = (int)Rango para binarizacion               #
 #######################################################
 main(argv[1])
