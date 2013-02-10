@@ -2,6 +2,18 @@ import Image
 from sys import argv
 import time
 from pylab import *
+import math
+
+PREWITT_X = [-1, 0, 1, -1, 0, 1, -1, 0, 1] 
+PREWITT_Y = [1, 1, 1, 0, 0, 0, -1, -1, -1]
+
+SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
+SOBEL_Y = [1, 2, 1, 0, 0, 0, -1, -2, -1]
+
+MINN = -60
+MAXN = 300
+
+debug = False
 
 def generarDatos(argv):
 	try:
@@ -45,42 +57,6 @@ def convertirGrises(pixeles):
 		imagenGris.append((max(bite), max(bite), max(bite)))  
 	return imagenGris
 
-def aplicarFiltro(pixeles, ancho):
-	imagenFiltrada = list()
-
-	for indice in range(len(pixeles)):
-		#Sacamos los pixeles vecinos
-		# primero el izquiero
-		try:
-			vecinoIzq = max(pixeles[indice - 1])
-		except:
-			# si no tiene vecino izquierdo
-			vecinoIzq = max(pixeles[indice])
-		# ahora el derecho
-		try:
-			vecinoDer = max(pixeles[indice + 1])
-		except:
-			# si no tiene vecino derecho
-			vecinoDer = max(pixeles[indice])
-		# ahora el vecino de arriba
-		try:
-			vecinoArriba = max(pixeles[indice - ancho])
-		except:
-			# si no tiene vecinos de arriba
-			vecinoArriba = max(pixeles[indice])
-		# el ultimo vecino... el de abajo
-		try:
-			vecinoAbajo = max(pixeles[indice + ancho])
-		except:
-			# si no tiene vecino abajo
-			vecinoAbajo = max(pixeles[indice])
-
-		# ya tenemos todos los vecinos validados, ahora creamos la nueva imagen
-
-		nuevoPixel = max(vecinoIzq, vecinoDer, vecinoAbajo, vecinoArriba)
-		imagenFiltrada.append((nuevoPixel, nuevoPixel, nuevoPixel))
-	return imagenFiltrada
-
 def aplicarUmbral(pixeles, MIN, MAX):
 	imagenUmbral = list()
 	for bite in pixeles: 
@@ -96,6 +72,179 @@ def aplicarUmbral(pixeles, MIN, MAX):
 
 	return imagenUmbral
 
+def calcularVecinosCruz(pixeles, indice, ancho):
+	# primero el izquiero
+	centro = (len(PREWITT_X) + 1) / 2 # mascara de 3x3
+	try:
+		vecinoIzq = max(pixeles[indice - 1])
+		vecinoIzqMascaraX = PREWITT_X[centro - 1]
+		vecinoIzqMascaraY = PREWITT_Y[centro - 1]
+
+	except:
+		# si no tiene vecino izquierdo
+		vecinoIzq = 0
+		vecinoIzqMascaraX = 0
+		vecinoIzqMascaraY = 0
+	# ahora el derecho
+	try:
+		vecinoDer = max(pixeles[indice + 1])
+		vecinoDerMascaraX = PREWITT_X[centro + 1]
+		vecinoDerMascaraY = PREWITT_Y[centro + 1]
+	except:
+		# si no tiene vecino derecho
+		vecinoDer = 0
+		vecinoDerMascaraX = 0
+		vecinoDerMascaraY = 0
+	# ahora el vecino de arriba
+	try:
+		vecinoArriba = max(pixeles[indice - ancho])
+		vecinoArribaMascaraX = PREWITT_X[centro - (len(PREWITT_X) / 3)]
+		vecinoArribaMascaraY = PREWITT_Y[centro - (len(PREWITT_Y) / 3)]
+	except:
+		# si no tiene vecinos de arriba
+		vecinoArriba = 0
+		vecinoArribaMascaraX = 0
+		vecinoArribaMascaraY = 0
+	# el ultimo vecino... el de abajo
+	try:
+		vecinoAbajo = max(pixeles[indice + ancho])
+		vecinoAbajoMascaraX = PREWITT_X[centro + (len(PREWITT_X) / 3)]
+		vecinoAbajoMascaraY = PREWITT_Y[centro + (len(PREWITT_Y) / 3)]
+	except:
+		# si no tiene vecino abajo
+		vecinoAbajo = 0
+		vecinoAbajoMascaraX = 0
+		vecinoAbajoMascaraY = 0
+
+	return (vecinoIzq, vecinoDer, vecinoAbajo, vecinoArriba)
+
+def calcularVecinosDiagonales(pixeles, indice, ancho):
+	# primero el izquiero arriba
+	try:
+		vecinoIzqArriba = max(pixeles[indice - (ancho + 1)])
+	except:
+		# si no tiene vecino izquierdo arriba
+		vecinoIzqArriba = 0
+	# ahora el derecho arriba
+	try:
+		vecinoDerArriba = max(pixeles[indice - (ancho - 1)])
+
+	except:
+		# si no tiene vecino derecho arriba
+		vecinoDerArriba = 0
+	# ahora el vecino izquieda abajo
+	try:
+		vecinoIzqAbajo = max(pixeles[indice + (ancho - 1)])
+	except:
+		# si no tiene vecinos izquierda abajo
+		vecinoIzqAbajo = 0
+	# el ultimo vecino... derecha abajo
+	try:
+		vecinoDerAbajo = max(pixeles[indice + (ancho + 1)])
+	except:
+		# si no tiene vecino derecha abajo
+		vecinoDerAbajo = 0
+
+	return (vecinoIzqArriba, vecinoDerArriba, vecinoIzqAbajo, vecinoDerAbajo)
+
+def aplicarFiltro(pixeles, ancho):
+	imagenFiltrada = list()
+
+	for indice in range(len(pixeles)):
+		#Sacamos los pixeles vecinos en cruz(arriba, abajo, der, izq)
+		(vecinoIzq, vecinoDer, vecinoAbajo, vecinoArriba) = \
+											calcularVecinosCruz(pixeles, indice, ancho)
+		
+		# ya tenemos todos los vecinos validados, ahora creamos la nueva imagen
+		nuevoPixel = max(vecinoIzq, vecinoDer, vecinoAbajo, vecinoArriba)
+		imagenFiltrada.append((nuevoPixel, nuevoPixel, nuevoPixel))
+
+	return imagenFiltrada
+
+def ordenarVecinos(vecinosTotales, pixelActual):
+	vecinosTotales = list(vecinosTotales)
+	vecinosOrdenados = list()
+
+	vecinosOrdenados.append(vecinosTotales.pop(4)) # izq arriba
+	vecinosOrdenados.append(vecinosTotales.pop(3)) # arriba
+	vecinosOrdenados.append(vecinosTotales.pop(3)) # der arriba
+	vecinosOrdenados.append(vecinosTotales.pop(0)) # izq
+	vecinosOrdenados.append(max(pixelActual) )          # actual
+	vecinosOrdenados.append(vecinosTotales.pop(0)) # der
+	vecinosOrdenados.append(vecinosTotales.pop(1)) # izq abajo
+	vecinosOrdenados.append(vecinosTotales.pop(0)) # abajo
+	vecinosOrdenados.append(vecinosTotales.pop(0)) # der abajo
+
+	return vecinosOrdenados
+
+def aplicarNormalizacion(pixel):
+	# el pixel debe de estar dentro de un rango de [0:255]
+	MIN 
+
+
+	return	imagenNormalizada
+
+def aplicarConvolucion(pixeles, ancho):
+	imagenConvolucion = list()
+	imagenNormalizada = list()
+
+	MINN = 1000
+	MAXN = 1
+
+	for indice in range(len(pixeles)):
+		# sacamos los vecinos en cruz
+		#(vecinoIzq, vecinoDer, vecinoAbajo, vecinoArriba)
+		vecinosCruz = 	calcularVecinosCruz(pixeles, indice, ancho)
+		
+		# sacamos los vecinos en diagonal
+		#(vecinoIzqArriba, vecinoDerArriba, vecinoIzqAbajo, vecinoDerAbajo) 
+		vecinosDiagonales = calcularVecinosDiagonales(pixeles, indice, ancho)
+
+		# sumamos todos los vecinos
+		vecinosTotales = vecinosCruz + vecinosDiagonales
+		# y ordenas para multiplicar por la mascara centralizada
+		vecinosOrdenados = ordenarVecinos(vecinosTotales, pixeles[indice])
+
+		sumaX = 0
+		sumaY = 0
+
+		# multiplicaciones
+		for i in range(len(vecinosOrdenados)):
+			
+			multiplicacionX = vecinosOrdenados[i] * PREWITT_X[i]
+			multiplicacionY = vecinosOrdenados[i] * PREWITT_Y[i]
+
+			sumaX = multiplicacionX + sumaX
+			sumaY = multiplicacionY + sumaY
+
+			#nuevoPixel = int(math.sqrt((sumaX ** 2) + (sumaY ** 2)))
+			nuevoPixel = sumaX + sumaY
+
+
+			if debug: print "++++", nuevoPixel
+
+			# Validacion para convolucion
+			if nuevoPixel > 255:
+				nuevoPixel = 255
+
+			if nuevoPixel < 0:
+				nuevoPixel = 0
+
+			# NORMALIZACION
+			if nuevoPixel < MINN:
+				MINN = nuevoPixel
+			if nuevoPixel > MAXN:
+				MAXN = nuevoPixel
+			valorNuevo = (nuevoPixel - MINN) / (MAXN- MINN) * 255
+			
+
+		imagenNormalizada.append((valorNuevo, valorNuevo, valorNuevo))
+		imagenConvolucion.append((nuevoPixel, nuevoPixel, nuevoPixel))
+	return (imagenConvolucion, imagenNormalizada)
+
+
+
+
 def main(NombreImagen):
 
 	(MIN, MAX) = generarDatos(argv)
@@ -107,21 +256,34 @@ def main(NombreImagen):
 	guardarImagen(grises, ancho, alto, "salidaGRIS.png") # guardamos
 	tiempoGrisesFinal = time.time()
 
-	tiempoUmbralInicio = time.time()
-	umbral = aplicarUmbral(pixeles, MIN, MAX) # aplicamos umbral
-	guardarImagen(umbral, ancho, alto, "salidaUMBRAL.png")
-	tiempoUmbralFinal = time.time()
+#	tiempoUmbralInicio = time.time()
+#	umbral = aplicarUmbral(pixeles, MIN, MAX) # aplicamos umbral
+#	guardarImagen(umbral, ancho, alto, "salidaUMBRAL.png")
+#	tiempoUmbralFinal = time.time()
 
 	tiempoFiltroInicio = time.time()
 	filtro = aplicarFiltro(pixeles, ancho) # aplicamos FILTRO(que se vea borrosa)
 	guardarImagen(filtro, ancho, alto, "salidaFILTRO.png") # guardamos
 	tiempoFiltroFinal = time.time()
 
+	tiempoConvolucionInicio = time.time()	
+	convolucion, normalizada = aplicarConvolucion(grises, ancho)
+	guardarImagen(convolucion, ancho, alto, "salidaCONVO.png")
+	guardarImagen(normalizada, ancho, alto, "salidaNORMA.png")
+	tiempoConvolucionFinal = time.time()
+
+
+#	tiempoNormalizacionInicio = time.time()
+	#normalizacion = aplicarNormalizacion(pixeles, convolucion, MIN, MAX)
+	#guardarImagen(normalizacion, ancho, alto, "salidaNORMALAZACION.png")
+#	tiempoNormalizacionFinal = time.time()
 
 	print "Tiempos"
 	print "En escala a grises: ", tiempoGrisesFinal - tiempoGrisesInicio, "segundos"
-	print "En umbral: ", tiempoUmbralFinal - tiempoUmbralInicio, "segundos"
+#	print "En umbral: ", tiempoUmbralFinal - tiempoUmbralInicio, "segundos"
 	print "En filtro: ", tiempoFiltroFinal - tiempoFiltroInicio, "segundos"
+	print "En convolucion: ", tiempoConvolucionFinal - tiempoConvolucionInicio, "segundos"
+#	print "En normalizacion: ", tiempoNormalizacionFinal - tiempoNormalizacionInicio, "segundos" 
 	return
 
 
