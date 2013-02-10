@@ -174,12 +174,6 @@ def ordenarVecinos(vecinosTotales, pixelActual):
 
 	return vecinosOrdenados
 
-def aplicarNormalizacion(pixel):
-	# el pixel debe de estar dentro de un rango de [0:255]
-	MIN 
-
-
-	return	imagenNormalizada
 
 def aplicarConvolucion(pixeles, ancho):
 	imagenConvolucion = list()
@@ -199,7 +193,7 @@ def aplicarConvolucion(pixeles, ancho):
 
 		# sumamos todos los vecinos
 		vecinosTotales = vecinosCruz + vecinosDiagonales
-		# y ordenas para multiplicar por la mascara centralizada
+		# y ordenamos para multiplicar por la mascara centralizada
 		vecinosOrdenados = ordenarVecinos(vecinosTotales, pixeles[indice])
 
 		sumaX = 0
@@ -240,6 +234,7 @@ def aplicarConvolucion(pixeles, ancho):
 			if nuevoPixel > MAXN:
 				MAXN = nuevoPixel
 			valorNuevo = (nuevoPixel - MINN) / (MAXN- MINN) * 255
+			# FIN DE NORMALIZACION
 			
 
 		imagenNormalizada.append((valorNuevo, valorNuevo, valorNuevo))
@@ -260,10 +255,10 @@ def main(NombreImagen):
 	guardarImagen(grises, ancho, alto, "salidaGRIS.png") # guardamos
 	tiempoGrisesFinal = time.time()
 
-#	tiempoUmbralInicio = time.time()
-#	umbral = aplicarUmbral(pixeles, MIN, MAX) # aplicamos umbral
-#	guardarImagen(umbral, ancho, alto, "salidaUMBRAL.png")
-#	tiempoUmbralFinal = time.time()
+	tiempoUmbralInicio = time.time()
+	umbral = aplicarUmbral(pixeles, MIN, MAX) # aplicamos umbral
+	guardarImagen(umbral, ancho, alto, "salidaUMBRAL.png")
+	tiempoUmbralFinal = time.time()
 
 	tiempoFiltroInicio = time.time()
 	filtro = aplicarFiltro(pixeles, ancho) # aplicamos FILTRO(que se vea borrosa)
@@ -271,23 +266,16 @@ def main(NombreImagen):
 	tiempoFiltroFinal = time.time()
 
 	tiempoConvolucionInicio = time.time()	
-	convolucion, normalizada = aplicarConvolucion(grises, ancho)
+	(convolucion, normalizada) = aplicarConvolucion(grises, ancho)
 	guardarImagen(convolucion, ancho, alto, "salidaCONVO.png")
 	guardarImagen(normalizada, ancho, alto, "salidaNORMA.png")
 	tiempoConvolucionFinal = time.time()
 
-
-#	tiempoNormalizacionInicio = time.time()
-	#normalizacion = aplicarNormalizacion(pixeles, convolucion, MIN, MAX)
-	#guardarImagen(normalizacion, ancho, alto, "salidaNORMALAZACION.png")
-#	tiempoNormalizacionFinal = time.time()
-
 	print "Tiempos"
 	print "En escala a grises: ", tiempoGrisesFinal - tiempoGrisesInicio, "segundos"
-#	print "En umbral: ", tiempoUmbralFinal - tiempoUmbralInicio, "segundos"
+	print "En umbral: ", tiempoUmbralFinal - tiempoUmbralInicio, "segundos"
 	print "En filtro: ", tiempoFiltroFinal - tiempoFiltroInicio, "segundos"
-	print "En convolucion: ", tiempoConvolucionFinal - tiempoConvolucionInicio, "segundos"
-#	print "En normalizacion: ", tiempoNormalizacionFinal - tiempoNormalizacionInicio, "segundos" 
+	print "En convolucion y normalizacion: ", tiempoConvolucionFinal - tiempoConvolucionInicio, "segundos"
 	return
 
 
