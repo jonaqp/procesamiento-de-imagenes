@@ -10,6 +10,9 @@ PREWITT_Y = [1, 1, 1, 0, 0, 0, -1, -1, -1]
 SOBEL_X = [-1, 0, 1, -2, 0, 2, -1, 0, 1]
 SOBEL_Y = [1, 2, 1, 0, 0, 0, -1, -2, -1]
 
+MINN = -60
+MAXN = 300
+
 debug = False
 
 def generarDatos(argv):
@@ -228,13 +231,6 @@ def aplicarConvolucion(pixeles, ancho):
 				nuevoPixel = 0
 
 			# NORMALIZACION
-			#Normalizar la imagen
-			#d -> a[0,255]
-			#chocar[min,max] actual
-			#r = max -min;
-			#Esto ya no lo entendi 
-			#prop = 256/r;	
-			#p= int(flour((p-min)*prop));
 			if nuevoPixel < MINN:
 				MINN = nuevoPixel
 			if nuevoPixel > MAXN:
