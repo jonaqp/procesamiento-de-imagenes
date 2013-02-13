@@ -5,7 +5,7 @@ from pylab import *
 import math
 
 
-debug = False
+debug = False # controla todos los print del programa
 
 def sobel(): 
 	return([-1, 0, 1, -2, 0, 2, -1, 0, 1], \
@@ -183,13 +183,13 @@ def ordenarVecinos(vecinosTotales, pixelActual):
 
 	return vecinosOrdenados
 
-def normalizacion(pixel, MINN, MAXN):
+def normalizacion(pixelActual, MINN, MAXN):
 	rango = MAXN - MINN
 	prop = 256 / rango
-	return int(math.floor((pixel - MINN) * prop))
+	return int(math.floor((pixelActual - MINN) * prop))
 
-def binarizacion(pixel, RANGO_BINARIZACION):
-	if pixel > RANGO_BINARIZACION:
+def binarizacion(pixelActual, RANGO_BINARIZACION):
+	if pixelActual > RANGO_BINARIZACION:
 		return 255
 	else:
 		return 0
@@ -197,7 +197,7 @@ def binarizacion(pixel, RANGO_BINARIZACION):
 def aplicarConvolucion(pixeles, ancho, mascara, RANGO_BINARIZACION):
 	imagenConvolucion = list()
 	imagenNormalizada = list()
-	imegenBinarizada = list()
+	imagenBinarizada = list()
 	
 	(mascaraX, mascaraY) = mascara()
 
@@ -232,10 +232,15 @@ def aplicarConvolucion(pixeles, ancho, mascara, RANGO_BINARIZACION):
 			sumaX = (vecinosOrdenados[i] * mascaraX[i]) + sumaX
 			sumaY = (vecinosOrdenados[i] * mascaraY[i]) + sumaY
 
+			# Forma 1
 			#nuevoPixel = int(math.sqrt((sumaX ** 2) + (sumaY ** 2)))
+			# Forma 2
 			nuevoPixel = sumaX + sumaY
 
 			# Validacion para quitar pixeles innecesarios
+			# NORMALIZACION
+			pixelNormalizado = normalizacion(nuevoPixel, MINN, MAXN)
+
 			if nuevoPixel > 255:
 				nuevoPixel = 255
 			if nuevoPixel < 0:
@@ -245,15 +250,16 @@ def aplicarConvolucion(pixeles, ancho, mascara, RANGO_BINARIZACION):
 				MINN = nuevoPixel
 			if nuevoPixel > MAXN:
 				MAXN = nuevoPixel
-			# NORMALIZACION
-			pixelNormalizado = normalizacion(nuevoPixel, MINN, MAXN)
+			
 			# BINARIZACION
 			pixelBinarizado = binarizacion(nuevoPixel, RANGO_BINARIZACION)
 			
 		imagenConvolucion.append((nuevoPixel, nuevoPixel, nuevoPixel))
 		imagenNormalizada.append((pixelNormalizado, pixelNormalizado, pixelNormalizado))
-		imegenBinarizada.append((pixelBinarizado, pixelBinarizado, pixelBinarizado))
-	return (imagenConvolucion, imagenNormalizada, imegenBinarizada)
+		imagenBinarizada.append((pixelBinarizado, pixelBinarizado, pixelBinarizado))
+
+
+	return (imagenConvolucion, imagenNormalizada, imagenBinarizada)
 
 def mostrarResumen(MIN, MAX, MASCARA , RANGO_BINARIZACION):
 	print "------------------------------------------------------"
