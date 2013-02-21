@@ -93,7 +93,7 @@ def guardarImagen(pixeles, ancho, alto, nombreImagen):
 def convertirGrises(pixeles):
 	imagenGris = list()
 	# recorremos la lista de bites para modificarlos  
-	for bite in pixeles:
+	for bite in pixepixelesles:
 		# agregamos a la "nueva" imagen
 		imagenGris.append((max(bite), max(bite), max(bite)))  
 	return imagenGris
@@ -480,16 +480,12 @@ def main(NombreImagen):
 		tiempoDiferenciacionFinal = time.time()
 
 
-
 		print "TIEMPOS"
 		print "Imagen de ", ancho,"x",alto, "pixeles" 
 		print "En aplicar sal ", tiempoSalFinal - tiempoSalInicio,  "segundos"
 		print "En quitar sal: ", tiempoSinSalFinal, tiempoSinSalInicio, "segundos"
 		print "En diferenciacion: ", tiempoDiferenciacionFinal - \
 											tiempoDiferenciacionInicio, "segundos"
-
-
-		
 
 	else:
 		(MIN, MAX, MASCARA , RANGO_BINARIZACION) = generarDatosConvolucion(argv)
