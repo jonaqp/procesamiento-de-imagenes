@@ -1,7 +1,9 @@
 class Grises:
-	def __init__(self, pixeles):
+	def __init__(self, pixeles, ancho):
 		print "GRISES"
 		self.pixeles = pixeles
+		self.ancho = ancho
+
 
 	def convertir(self):
 		imagenGris = list()

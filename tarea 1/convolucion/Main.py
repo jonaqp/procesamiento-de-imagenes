@@ -1,7 +1,6 @@
 from Datos import Datos
-from Grises import Grises
-from ProceImagen import ProceImagen
-from Filtro import Filtro
+from Procesamiento import Procesamiento
+from Imagen import Imagen
 
 from sys import argv
 import time
@@ -9,33 +8,57 @@ from Tkinter import *
 
 
 def main(nombreImagen):
-	# objetos
-	ima = ProceImagen(nombreImagen)
+	# objeto imagen
+	ima = Imagen(nombreImagen)
 	(pixeles, ancho, alto) = ima.lectura()
+	# objetos datos
+	#dat = Datos()
+	#RANGO_BINARIZACION = dat.convolucion(argv)
+	# objeto del procesamiento
+	pro = Procesamiento(pixeles, ancho, alto)
+	# tiempoFiltroInicio = time.time()
+	# tiempoFiltroFinal = time.time()
 
-	# convertir a grices
-	tiempoGrisesInicio = time.time()
-	gri = Grises(pixeles)
-	imagenGris = gri.convertir()
-	ima.guardar(pixeles, ancho, alto)
-	tiempoGrisesInicio = time.time()
+	# convertimos a grises
+	#imagenGris = pro.convertirGris()
+	#ima.setNombreImagen("salidaGRIS.png") # nuevo nombre para guardar archivo
+	#ima.guardar(imagenGris, ancho, alto) # guardamos
 
 	# aplicar filtro
-	imaFiltro = ProceImagen("salidaFILTRO.png")
-	tiempoFiltroInicio = time.time()
-	fil = Filtro(pixeles, ancho)
-	imagenFiltro = fil.aplicar() # aplicamos FILTRO(que se vea borrosa)
-	imaFiltro.guardar(imagenFiltro, ancho, alto) # guardamos
-	tiempoFiltroFinal = time.time()
+	#imagenFiltro = pro.aplicarFiltro() # (que se vea borrosa)
+	#ima.setNombreImagen("salidaFILTRO.png") # nuevo nombre para guardar archivo
+	#ima.guardar(imagenFiltro, ancho, alto) # guardamos
 
-	# aplicar diferenciacion
-	imaDifere = ProceImagen("salidaDIFERENCIACION.png")
-	tiempoDiferenciacionInicio = time.time()
-	dif = Diferenciacion(imagenGris, imagenFiltro)
-	imagenDiferenciacion = dif.aplicar() # detectar bordes
-	imaDifere.guardar(imagenDiferenciacion, ancho, alto, "salidaDIFERENCIACION.png") 
-	tiempoDiferenciacionFinal = time.time()
+	# aplicar convolucion
+	#imagenConvolucion = pro.aplicarConvolucion() # detectar bordes
+	#ima.setNombreImagen("salidaCONVO.png")  # nuevo nombre para guardar archivo
+	#ima.guardar(imagenConvolucion, ancho, alto) # guardamos
 
+	# aplciar normalizacion
+	#imagenNormalizada = pro.aplicarNormalizacion(imagenConvolucion)
+	#ima.setNombreImagen("salidaNORMA.png")  # nuevo nombre para guardar archivo
+	#ima.guardar(imagenNormalizada, ancho, alto) # guardamos	
+
+	# aplicar binarizacion
+	#(imagenBinarizada, pixelesVisitar) = pro.aplicarBinarizacion(imagenNormalizada, RANGO_BINARIZACION)
+	#ima.setNombreImagen("salidaBINA.png")  # nuevo nombre para guardar archivo
+	#ima.guardar(imagenBinarizada, ancho, alto) # guardamos	
+	
+	# buscamos objetos
+	#imagenObjetos, (etiquetas) = pro.buscarObjetos(imagenBinarizada, pixelesVisitar)
+	#ima.setNombreImagen("salidaOBJETOS.png")  # nuevo nombre para guardar archivo
+	#ima.guardarEtiquetas(imagenObjetos, ancho, alto, etiquetas) # guardamos	
+
+	#lineDetect = pro.detectarLineas()
+	#ima.setNombreImagen("salidaLINEAS.png")  # nuevo nombre para guardar archivo
+	#ima.guardar(lineDetect, ancho, alto) # guardamos
+
+	circuloDetect = pro.detectarCirculo()
+	ima.setNombreImagen("salidaCIRCULO.png")  # nuevo nombre para guardar archivo
+	ima.guardar(circuloDetect, ancho, alto) # guardamos
+
+
+	
 
 	return
 

@@ -1,7 +1,7 @@
 from sys import argv
 
 class Datos:
-	def salPimienta(argv):
+	def salPimienta(self, argv):
 		try:
 			INTENSIDAD = float(argv[3])
 			if (INTENSIDAD < 0.0 or INTENSIDAD > 1.0):
@@ -28,7 +28,8 @@ class Datos:
 				POLARIZACION = 0.8
 		return(INTENSIDAD, POLARIZACION)
 
-	def convolucion(argv):
+	def convolucion(self, argv):
+		'''
 		try:
 			MIN = int(argv[2])
 			if MIN < 0 or MIN > 255:
@@ -45,17 +46,10 @@ class Datos:
 			MAX = int(raw_input("Rango maximo: "))
 			if MAX < 0 or MAX > 255:
 				MAX = 190
+		'''
 		try:
-			MASCARA = argv[4]
-			MASCARA = MASCARA.lower()
-			MASCARA = globals()[MASCARA]
-		except:
-			MASCARA = raw_input("Mascara(SOBEL || PREWITT) : ")
-			MASCARA = MASCARA.lower()
-			MASCARA = globals()[MASCARA]
-		try:
-			RANGO_BINARIZACION = int(argv[5])
+			RANGO_BINARIZACION = int(argv[2])
 		except:
 			RANGO_BINARIZACION = int(raw_input("Rango binarizacion: "))
 
-		return(MIN, MAX, MASCARA, RANGO_BINARIZACION)
+		return RANGO_BINARIZACION
