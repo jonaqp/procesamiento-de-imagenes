@@ -10,12 +10,12 @@ from Tkinter import *
 def main(nombreImagen):
 	# objeto imagen
 	ima = Imagen(nombreImagen)
-	(pixeles, ancho, alto) = ima.lectura()
+	(im, pixeles, ancho, alto) = ima.lectura()
 	# objetos datos
 	#dat = Datos()
 	#RANGO_BINARIZACION = dat.convolucion(argv)
 	# objeto del procesamiento
-	pro = Procesamiento(pixeles, ancho, alto)
+	pro = Procesamiento(pixeles, ancho, alto, im)
 	# tiempoFiltroInicio = time.time()
 	# tiempoFiltroFinal = time.time()
 

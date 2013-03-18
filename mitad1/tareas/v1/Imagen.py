@@ -9,10 +9,11 @@ class Imagen:
 		self.nombreImagen = nuevoNombre
 
 	def lectura(self):
-		im = Image.open(self.nombreImagen) # creamos el objeto imaetiquetasgen 
+		im = Image.open(self.nombreImagen) # creamos el objeto imaetiquetasgen
+		print im.format, im.size, im.mode
 		pixeles = list(im.getdata()) # lista de todos los pixeles
 		ancho, alto = im.size # sacamos las medidas de la imagen
-		return(pixeles, ancho, alto)
+		return(im, pixeles, ancho, alto)
 
 	def guardar(self, pixeles, ancho, alto):
 		outImg = Image.new("RGB",(ancho, alto)) # creamos un nuevo objeto imagen

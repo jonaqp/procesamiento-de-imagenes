@@ -1,12 +1,13 @@
 import math, random
 
 class Procesamiento:
-	def __init__(self, pixeles, ancho, alto):
+	def __init__(self, pixeles, ancho, alto, im):
 		self.pixeles = pixeles
 		self.ancho = ancho
 		self.alto = alto
 		self.MINN = 1000
 		self.MAXN = 1
+		self.im = im
 
 	def convertirGris(self):
 		print "conviertiendo a grises"
@@ -102,10 +103,9 @@ class Procesamiento:
 		negros = (0,0,0)
 		ultimoValor = 0 # un contador para no buscar siempre desde la posicion 0
 
-
 		while negros in pixelesVisitar.values():
 			# agregamos un nuevo elemento en la cola
-			for valor in (range(ultimoValor, len(pixelesVisitar))):
+			for valor in range(ultimoValor, len(pixelesVisitar)):
 				if negros == pixelesVisitar[valor]:
 					nuevoColor = random.randrange(0,255)
 					nuevoColor2 = random.randrange(0,255)
@@ -128,7 +128,7 @@ class Procesamiento:
 				vecinos = vecinosCruz(imagenBinarizada, pixelActual, self.ancho)
 				valores = vecinos.items()
 				for i in range(len(vecinos)): # recorremos la vecindad
-					# si hay negros en la lista de vecinosVisitar y no esta en la cola
+					# si hay negros en la lista de pixelesVisitar y no esta en la cola
 					# y no es borde = agregamos
 					try:
 						if (negros == pixelesVisitar[valores[i][0]] and \
@@ -225,15 +225,20 @@ class Procesamiento:
 	def detectarCirculo(self):
 		print "Detectando circulo"
 
-		x = -1 # matriz imaginaria
-		y = 0 # matriz imaginaria
+		x = 1 # matriz imaginaria
+		y = 1 # matriz imaginaria
 		largoMatriz = self.alto
 
 		imagenCirculo = list()
 
 		(mascaraX, mascaraY) = sobel()
 
+		#radio = int(raw_input('Radio: '))
+		radio = 21
+
 		elegidos = list()
+		votos = dict()
+		circle_matrix = dict()
 		rojo = (255, 0, 0)
 		verde = (0, 255, 0)
 		azul = (0, 0, 255)
@@ -262,37 +267,48 @@ class Procesamiento:
 			for i in range(len(vecinosOrdenados)): # multiplicaciones de matrices
 				gx = (vecinosOrdenados[i] * mascaraX[i]) + gx 
 				gy = (vecinosOrdenados[i] * mascaraY[i]) + gy
+
+			g = (gx ** 2 + gy ** 2) ** 0.5
+			if math.fabs(g) > 0:
+				cosTheta = gx / g
+				sinTheta = gy / g
+
+				xc = int(round(x - radio * cosTheta))
+				yc = int(round(y - radio * sinTheta))
+				if xc >= 0 and yc >= 0:
+					if (xc * yc) in votos:
+						votos[xc * yc] += 1
+					else:
+						votos[xc * yc] = 1
+					
+		#print votos
 			
-			
+		### falta implementar la frecuencia
+		# los mas votados - pruebas
+		for candidato in votos.items():
+			if candidato[1] > 1:
+				elegidos.append(candidato[0])
 
-			#if gx > 0.0 and gy == 0.0: # 0
-			#	elegidos.append((indice, rojo))
-			#elif gx < 0.0 and gy == 0.0: # 180
-			#	elegidos.append((indice, rojo))
-			#if gx == 0.0 and gy > 0.0: # 90
-			#	elegidos.append((indice, azul))
-			#elif gx == 0.0 and gy < 0.0: # 270
-			#	elegidos.append((indice, azul))
-			#elif gx * gy != 0.0: # cualquier otro
-			#	elegidos.append((indice, verde)) 
-	
-
-		### falta implementar la votacion
-
-		
+		print elegidos
 
 		## armar la imagen	
 		sig = 0
+		cont = 0
 		for i in range(len(self.pixeles)):
 			try:
-				if i == elegidos[sig][0]:
-					imagenLineas.append(elegidos[sig][1])
-					sig += 1
+				#print i, "|", elegidos[sig][0]
+				#if i in elegidos:
+				if i == elegidos[4]:
+					cont += 1
+					pixelNuevo = rojo
+					imagenCirculo.append(pixelNuevo)
 				else:
 					pixelNormal = self.pixeles[i] 
-					imagenLineas.append(pixelNormal)
+					imagenCirculo.append(pixelNormal)
 			except:
 				pass
+
+		print len(elegidos), "|", cont
 
 	
 		print "listo"
