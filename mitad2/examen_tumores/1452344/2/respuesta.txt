@@ -1,0 +1,14 @@
+2.1 
+* los tumores se pueden confundir con los huesos
+* los tumores se pueden confundir con la luz de la radiografia
+* demaciado ruido, y dificulta detectar bordes
+
+2.2
+* Con un entrenamiento previo, la imagen puede descartar entre cosas que no son tumores,
+por ejemplo huesos. Asi limita el rango de busqueda. Ademas de que aprende las posiciones mas
+frecuentes en donde puede estar un tumor.
+
+2.3
+* El programa tiene a buscar solo tumores y mientras va procesando "aprende" de lo que puede
+ser o no ser tumor. Por ejemplo, una vez detectado el primero, este se retroalimenta y 
+eliminara masas demasiado grandes(por lo general huesos) o demasiados pequeños(luz).
