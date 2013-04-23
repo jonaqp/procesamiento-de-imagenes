@@ -341,8 +341,9 @@ class Procesamiento:
 				print "----------------------------------"
 				'''
 
-				if dif_x > 50 and dif_x < 200\
-					and dif_y > 50 and dif_y < 200:
+				# Cambiar estos umbrales segun el posible diametro del agujero
+				if dif_x > 10 and dif_x < 200\
+					and dif_y > 10 and dif_y < 200:
 						draw.text(puntoCentro, "H"+str(objeto), fill="red") 
 						agujero.append((masa, puntoCentro))
 				'''
