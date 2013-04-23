@@ -94,16 +94,17 @@ class Procesamiento:
 		fig.set_position([box.x0, box.y0 + box.height * 0.1,box.width, box.height * 0.9])
 		fig.legend(loc = 'upper center', bbox_to_anchor=(0.5, -0.05), fancybox = True, shadow = True, ncol = 1)
 		
-		#plt.show()
+		plt.show()
 		return
 
 	def minimosLocales(self,vector):
-		minimos=list()
-		media=sum(vector)/len(vector)
-		media2=(max(vector)+min(vector))/2
-		for i in range(1,len(vector)-1):
+		minimos = list()
+		media = sum(vector) / len(vector)
+		
+		for i in range(1, len(vector)-1):
 			if vector[i-1]>vector[i] and vector[i]<vector[i+1]:
-				if vector[i]<media-40:
+				# varia segun la imagen(esta es para fondos claros)
+				if vector[i] < media-50: # umbral sacado a prueba y error
 					minimos.append(i)
 		return minimos
 
@@ -125,7 +126,7 @@ class Procesamiento:
 				#pixeles[x, y] = (0, 0, 255)
 				lineasHorizontales.append((x, y))						
 
-		self.imagen.show()
+		#self.imagen.show()
 		return lineasHorizontales, lineasVerticales
 
 	def calcularCruces(self, lineasHorizontales, lineasVerticales):
@@ -270,73 +271,112 @@ class Procesamiento:
 		print "Buscando objetos..."
 		pixeles = self.imagen.load()
 		draw = ImageDraw.Draw(self.imagen)
-		blanco = (255, 255, 255)
+		negro = (0, 0, 0)
 		centro = (1, 1, 1)
 		objeto = 0
+		agujero = list()
 		pixelesCola = list()
 		pixelesVisitados = dict()
 
-		for x in range(self.ancho): # cliclo principal
-			for y in range(self.alto): # ciclo principal
-				# buscamos el primer pixel blanco(borde) para agregarlo como candidato
-				if blanco == pixeles[x,y]:
-					pixelesCola.append((x,y)) # agregamos el candidato a la cola
-					masa = list() # el objeto que se forma con el candidato
-					while pixelesCola > 0: 
-						try:
-							pixelesActual = pixelesCola[0] # asignos el candidato a analizar
-							pixelesVisitados[x, y] = True # agreamos a visitados
-						except:
-							break # ya no hay elementos
-						# recorremos sus vecinos
-						for mx in range(pixelesActual[0]-1, pixelesActual[0]+2):
-							for my in range(pixelesActual[1]-1, pixelesActual[1]+2):			
-								# aseguramos que sea blanco(borde), que no este en la cola y
-								# que no se haya visitado mas aparte que no salga 
-								# de las dimensiones de la imagen
-								if mx >= 0 and my >= 0 and mx < self.ancho and my < self.alto\
-									and pixeles[mx, my] == blanco\
-									 and (mx, my) not in pixelesCola\
-									  and not pixelesVisitados.has_key((mx, my)):
-									pixelesCola.append((mx, my)) #agreamos el vecino a la cola
-									pixelesVisitados[mx, my] = True # agreamos visitados
-						masa.append(pixelesCola.pop(0)) # borramos el candidato analizado
+		#for x in range(self.ancho): # cliclo principal
+		#	for y in range(self.alto): # ciclo principal
+		for pixel in pixelesCruz:
+			# buscamos el primer pixel blanco(borde) para agregarlo como candidato
+			if negro == pixeles[pixel]:
+				pixelesCola.append(pixel) # agregamos el candidato a la cola
+				masa = list() # el objeto que se forma con el candidato
+				while pixelesCola > 0: 
+					try:
+						pixelesActual = pixelesCola[0] # asignos el candidato a analizar
+						pixelesVisitados[pixel] = True # agreamos a visitados
+					except:
+						break # ya no hay elementos
+					# recorremos sus vecinos 
+					for mx in range(pixelesActual[0]-1, pixelesActual[0]+2):
+						for my in range(pixelesActual[1]-1, pixelesActual[1]+2):			
+							# aseguramos que sea negro, que no este en la cola y
+							# que no se haya visitado mas aparte que no salga 
+							# de las dimensiones de la imagen
+							if mx >= 0 and my >= 0 and mx < self.ancho and my < self.alto\
+								and pixeles[mx, my] == negro\
+								 and (mx, my) not in pixelesCola\
+								  and not pixelesVisitados.has_key((mx, my)):
+								pixelesCola.append((mx, my)) #agreamos el vecino a la cola
+								pixelesVisitados[mx, my] = True # agreamos visitados
+					masa.append(pixelesCola.pop(0)) # borramos el candidato analizado
 
-					# dos elementos al azar
-					punto1 = random.choice(masa)
-					punto2 = random.choice(masa)
+				# dos elementos al azar
+				punto1 = random.choice(masa)
+				punto2 = random.choice(masa)
 
-					
-					#CENTRO DE MASA 
-					xmin = xmax = masa[0][0]
-					ymin = ymax = masa[0][1]
+				
+				xmin = xmax = masa[0][0]
+				ymin = ymax = masa[0][1]
 
-					nuevoColor = random.randrange(0,255)
-					nuevoColor2 = random.randrange(0,255)
-					nuevoColor3 = random.randrange(0,255)
-					for pixel in masa: # pintamos
-						if pixel[0] < xmin:
-							xmin = pixel[0]
-						if pixel[0] > xmax:
-							xmax = pixel[0]
-						if pixel[1] < ymin:
-							ymin = pixel[1]
-						if pixel[1] > ymax:
-							ymax = pixel[1]
-						pixeles[pixel] = (nuevoColor, nuevoColor2, nuevoColor3)
+				nuevoColor = random.randrange(0,255)
+				nuevoColor2 = random.randrange(0,255)
+				nuevoColor3 = random.randrange(0,255)
+				for pixel in masa: # pintamos
+					if pixel[0] < xmin:
+						xmin = pixel[0]
+					if pixel[0] > xmax:
+						xmax = pixel[0]
+					if pixel[1] < ymin:
+						ymin = pixel[1]
+					if pixel[1] > ymax:
+						ymax = pixel[1]
+					pixeles[pixel] = (nuevoColor, nuevoColor2, nuevoColor3)
 
+				dif_x = xmax - xmin
+				dif_y = ymax - ymin	
 
-					puntoCentro = (xmin+xmax)/2, (ymin+ymax)/2 # centro del objeto
-					
-					objeto += 1
-					#draw.text(puntoCentro, "PC"+str(objeto), fill="green") 
-					if objeto != 1:
-						pixeles[puntoCentro] = (255,255,1)
-						draw.line((puntoCentro, punto1), fill=128)					
+				puntoCentro = (xmin+xmax)/2, (ymin+ymax)/2 # centro del objetos
+
+				'''
+				print objeto	
+				print dif_y
+				print dif_x
+				draw.text(puntoCentro, "PC"+str(objeto), fill="green") 
+				objeto += 1
+				print "----------------------------------"
+				'''
+
+				if dif_x > 50 and dif_x < 200\
+					and dif_y > 50 and dif_y < 200:
+						draw.text(puntoCentro, "H"+str(objeto), fill="red") 
+						agujero.append((masa, puntoCentro))
+				'''
+				puntoCentro = (xmin+xmax)/2, (ymin+ymax)/2 # centro del objeto
+				
+				objeto += 1
+				#draw.text(puntoCentro, "PC"+str(objeto), fill="green") 
+				if objeto != 1:
+					pixeles[puntoCentro] = (255,255,1)
+					draw.line((puntoCentro, punto1), fill=128)					
+				'''
 					
 		self.imagen.save(nombreImagenSalida)
 		if abrir:
 			self.imagen.show()	
 
 		print "listo"
-		return 
+		return agujero
+
+	def pintarImagenOriginal(self, agujero):
+		pixeles = self.imagen.load()
+		draw = ImageDraw.Draw(self.imagen)
+		print "porcentaje" 
+
+		i = 1
+		for cantidad, centro in agujero:
+			for j in cantidad:
+				pixeles[j] = (255, 255, 0)
+			draw.text(centro, "H"+str(i), fill="red")
+			print "Elemento", i, "tiene:",
+			print float(len(cantidad))*100 / float((self.ancho * self.alto)),
+			print "% de la imagen orginal"
+			i += 1
+		self.imagen.show()
+
+
+		return

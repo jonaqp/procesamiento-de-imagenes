@@ -5,16 +5,17 @@ import time
 abrir = False # para abrirla en una ventana la imagen obtenida
 
 def main(nombreImagen, RANGO):
-	
 	pro = Procesamiento(nombreImagen) # instanciamos
+	
 	# grises
 	grises = pro.aplicarGris(abrir)  
+	
 	# sumar filas de la imagen
 	sumaHorizontales = pro.sumarFilas()
 	# sumar columna de la imagen
 	sumaVerticales = pro.sumarColumnas()
 	# graficar
-	#pro.graficar(sumaHorizontales, sumaVerticales)
+	pro.graficar(sumaHorizontales, sumaVerticales)
 	# minimos locales
 	lineasVerticales = pro.minimosLocales(sumaVerticales)
 	lineasHorizontales = pro. minimosLocales(sumaHorizontales)
@@ -37,8 +38,12 @@ def main(nombreImagen, RANGO):
 	pro.setImagen("salidaNORMALIZACION.png") # imagen base
 	pro.aplicarBinarizacion(abrir, RANGO) 
 	# buscar objetos y centro masa
+	
 	pro.setImagen("salidaBINARIZADA.png") # receteamos
-	pro.buscarObjetos(abrir, pixelesCruz) # BFS
+	agujeros = pro.buscarObjetos(abrir, pixelesCruz) # BFS
+
+	pro.setImagen(nombreImagen)
+	pro.pintarImagenOriginal(agujeros)
 	
 	
 
