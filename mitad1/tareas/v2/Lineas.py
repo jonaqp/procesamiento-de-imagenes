@@ -32,9 +32,7 @@ class Lineas:
 		for x in range(self.ancho):
 			for y in range(self.alto):
 				vecindad = obtenerVecinos(x, y, self.ancho, self.alto, self.imagenOriginal)
-				gx = sum(sum(vecindad * sobX))
-				gy = sum(sum(vecindad * sobY))
-
+				 
 				if (gx < -1*10.0 or gx > 10.0) or (gy < -1*10.0 or gy > 10.0): # porque 10 ? 
 					angulo = 0.0
 					if gx > 0.0 and gy == 0.0: # 0
@@ -44,7 +42,7 @@ class Lineas:
 					if gx == 0.0 and gy > 0.0: # 90
 						angulo = 90.0
 					elif gx == 0.0 and gy < 0.0: # 270
-						angulo = 270-0
+						angulo = 270-0 
 					else:
 						angulo = (int(math.degrees(math.atan(gy/gx)))/12)*12 # porque 12 ?
 

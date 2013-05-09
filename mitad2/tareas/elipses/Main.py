@@ -4,15 +4,8 @@ from sys import argv
 abrir = False # para abrirla en una ventana la imagen obtenida
 
 def main(nombreImagen, RANGO):
-	# -------------- SABADO -------------------- # 
 	pro = Procesamiento(nombreImagen) # instanciamos
-	# grises
-	grises = pro.aplicarGris(abrir) 
-	# umbral
-	pro.setImagen(nombreImagen) # receteamos
-	pro.aplicarUmbral(abrir) 
 	# filtro
-	pro.setImagen(nombreImagen) # receteamos
 	pro.aplicarFiltro(abrir) 
 	# convolucion
 	pro.setImagen("salidaFILTRO.png") # imagen base
@@ -23,11 +16,15 @@ def main(nombreImagen, RANGO):
 	# binarizacion
 	pro.setImagen("salidaNORMALIZACION.png") # imagen base
 	pro.aplicarBinarizacion(abrir, RANGO) 
-	# buscar objetos y centro masa
+	# buscar objetos tipo borde
 	pro.setImagen("salidaBINARIZADA.png") # receteamos
-	pro.buscarObjetos(abrir) # BFS
-	
-	
+	figuras = pro.buscarObjetosTipoBorde(abrir) # BFS
+	# dibujamos la tangente de cada figura detectada
+	pro.setImagen("salidaOBJETOS.png")
+	puntosInterseccionMedio = pro.dibujarTangente(abrir, figuras)
+	# votacion por el centro
+	pro.setImagen("salidaOBJETOS.png")
+	pro.votacionPixeles(abrir, puntosInterseccionMedio)
 
 ######## PARAMATROS DEL PROGRAMA #######
 # argv[1] =(string) nombre de la imagen
