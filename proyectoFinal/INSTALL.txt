@@ -1,3 +1,23 @@
 INSTALL
 =======
 
+Para su correcto funcionamiento el programa necesita lo siguiente:
+ o Python 2.7
+ o OpenCV
+
+
+OpenCV - Windows
+================
+
+Descargar el instalador desde el siguiente pagina:
+
+http://opencv.willowgarage.com/wiki/InstallGuide
+
+Ejecutar el instalador y seguir las instrucciones.
+
+OpenCV - Python
+===============
+
+En Ubuntu, ejecutar el comando:
+
+sudo apt-get install python-opencv
