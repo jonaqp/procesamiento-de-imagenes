@@ -24,7 +24,7 @@ Uso
 El programa abrira la webCam y entrara en modo entrenamieto, cuando el modo 
 entrenamiento este listo se imprimira por pantalla el simbolo "+++". 
 
-Una vez que el simbolo este se este imprimiendo, juega a mover los ojos, 
+Una vez que el simbolo se este imprimiendo, mueve los ojos y
 se imprimira por terminal "AGUAS!" como señal de advertencia. 
 
 Para salir presionar ESC.
