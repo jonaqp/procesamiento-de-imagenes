@@ -8,3 +8,7 @@ class Mascaras():
 
 		self.arr_prewittX = [[-1, 0, 1], [-1, 0, 1], [-1, 0, 1]]
 		self.arr_prewittY = [[1, 1, 1], [0, 0, 0], [-1, -1, -1]]
+
+
+
+		
