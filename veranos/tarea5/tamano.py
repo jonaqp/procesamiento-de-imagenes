@@ -3,7 +3,7 @@ import Image
 import numpy
 import math
 
-
+ 
 '''Funciona para agrandar pero la logica esta mal para achicar '''
 
 def calcularRelacion(ancho, alto, newAncho, newAlto):
