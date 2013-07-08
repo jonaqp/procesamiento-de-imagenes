@@ -39,7 +39,7 @@ class Imagen(object):
 	###### Fin propiedades ############
 
 	def redimensionar(self):
-		print 'Redimensionando...'
+		print 'Redimensionando a ', self._newAncho,'x',self._newAlto, "..."
 		
 		
 		pixelesAncho, pixelesAlto=\
@@ -62,6 +62,7 @@ class Imagen(object):
 		
 		nuevaImagen.show() # mostramos en ventana
 		nuevaImagen.save("SALIDA.png") # guardamos el archivo
+		print 'listo'
 
 
 def main(nombreImagen, newAncho, newAlto):
