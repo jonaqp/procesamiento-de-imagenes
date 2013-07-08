@@ -3,10 +3,10 @@ import Image
 import numpy
 import math
 
- 
-'''Funciona para agrandar pero la logica esta mal para achicar '''
 
 def calcularRelacion(ancho, alto, newAncho, newAlto):
+	''' Relacion entre las dimensiones de la nueva imagen
+	    contra la imagen actual. '''
 	pixelesAncho = (1.0*newAncho)/ancho
 	pixelesAlto = (1.0*newAlto)/alto 
 	return pixelesAncho, pixelesAlto
@@ -20,7 +20,8 @@ class Imagen(object):
 		self.alto = self.ima.size[1]
 		print self.ima.format, self.ima.size, self.ima.mode
 		
-	@property
+	###### Propiedades ##############
+	@property 
 	def newAncho(self):
 		return self._newAncho
 
@@ -35,40 +36,41 @@ class Imagen(object):
 	@newAlto.setter
 	def newAlto(self, valor):
 		self._newAlto = valor
+	###### Fin propiedades ############
 
 	def redimensionar(self):
 		print 'Redimensionando...'
-		pixelesAncho, pixelesAlto=\
-					calcularRelacion(self.ancho, self.alto,\
-									 self._newAncho, self._newAlto)
 		
-		nuevaImagen = Image.new("RGB",\
-								(self._newAncho, self._newAlto))
-		newPixeles = nuevaImagen.load()
+		
+		pixelesAncho, pixelesAlto=\
+					calcularRelacion(self.ancho, self.alto, self._newAncho, self._newAlto)
+		
+		nuevaImagen = Image.new("RGB", (self._newAncho, self._newAlto)) # creamos la nueva imagen
+		newPixeles = nuevaImagen.load() # cargamos los pixeles de la nueva imagen
 
 
 		self._newAncho = int(self.ancho*pixelesAncho)
 		self._newAlto = int(self.alto*pixelesAlto)
 		
+		# recorremos los pixeles de la nueva imagen y le asignamos el valor del pixel
+		# actual(esto es con ayuda de la relacion de pixeles)
 		for x in range(self._newAncho):
 			for y in range(self._newAlto):
-				newPixeles[x,y] = self.pixeles[int(x/pixelesAncho),\
-									int(y/pixelesAlto)]
+				# convertimos a enteros, porque acceder a un pixel no se puede con doubles.
+				newPixeles[x,y] = self.pixeles[int(x/pixelesAncho), int(y/pixelesAlto)]
 
-
-		nuevaImagen.show()
-		nuevaImagen.save("SALIDA.png")
-
-		return nuevaImagen
+		
+		nuevaImagen.show() # mostramos en ventana
+		nuevaImagen.save("SALIDA.png") # guardamos el archivo
 
 
 def main(nombreImagen, newAncho, newAlto):
 	# creamos un objeto tipo imagen
 	ima = Imagen(nombreImagen)
-	ima.newAncho = newAncho
-	ima.newAlto = newAlto 
+	ima._newAncho = newAncho
+	ima._newAlto = newAlto 
 
-	nuevaImagen = ima.redimensionar()
+	ima.redimensionar()
 	
 
 ##################################################
@@ -77,7 +79,3 @@ def main(nombreImagen, newAncho, newAlto):
 # [3] - int: el nuevo alto que tendra la imagen 
 ##################################################
 main(sys.argv[1], int(sys.argv[2]), int(sys.argv[3]))
-
-
-
-
