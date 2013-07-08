@@ -7,12 +7,10 @@ import math
 '''Funciona para agrandar pero la logica esta mal para achicar '''
 
 def calcularRelacion(ancho, alto, newAncho, newAlto):
-	''' Regla de tres simples. '''
-	pixelesAncho = int(math.ceil(((newAncho*100) / ancho)/100.0))
-	pixelesAlto = int(math.ceil(((newAlto*100) / ancho)/100.0))
+	pixelesAncho = (1.0*newAncho)/ancho
+	pixelesAlto = (1.0*newAlto)/alto 
 	return pixelesAncho, pixelesAlto
-
-
+	
 
 class Imagen(object):
 	def __init__(self, nombreImagen):
@@ -20,6 +18,7 @@ class Imagen(object):
 		self.pixeles = self.ima.load()
 		self.ancho = self.ima.size[0]
 		self.alto = self.ima.size[1]
+		print self.ima.format, self.ima.size, self.ima.mode
 		
 	@property
 	def newAncho(self):
@@ -39,27 +38,23 @@ class Imagen(object):
 
 	def redimensionar(self):
 		print 'Redimensionando...'
-		pixelesAncho, pixelesAlto =\
+		pixelesAncho, pixelesAlto=\
 					calcularRelacion(self.ancho, self.alto,\
 									 self._newAncho, self._newAlto)
-
-
+		
 		nuevaImagen = Image.new("RGB",\
 								(self._newAncho, self._newAlto))
-		pixelesNew = nuevaImagen.load()
+		newPixeles = nuevaImagen.load()
 
-		for y in range(self.alto):
-			inicioY = (y*pixelesAlto) 
-			finalY = (y*pixelesAlto) + pixelesAlto
-			for x in range(self.ancho):
-				inicioX = (x*pixelesAncho)
-				finalX = (x*pixelesAncho) + pixelesAncho
-				for ny in range(inicioY, finalY):
-					for nx in range(inicioX, finalX):
-						try:
-							pixelesNew[nx, ny] = self.pixeles[x, y]
-						except:
-							break
+
+		self._newAncho = int(self.ancho*pixelesAncho)
+		self._newAlto = int(self.alto*pixelesAlto)
+		
+		for x in range(self._newAncho):
+			for y in range(self._newAlto):
+				newPixeles[x,y] = self.pixeles[int(x/pixelesAncho),\
+									int(y/pixelesAlto)]
+
 
 		nuevaImagen.show()
 		nuevaImagen.save("SALIDA.png")
