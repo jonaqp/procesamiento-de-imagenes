@@ -167,6 +167,7 @@ class Procesamiento:
 				# buscamos el primer pixel negro para agregarlo como candidato
 				if negro == pixeles[x,y]:
 					pixelesCola.append((x,y)) # agregamos el candidato a la cola
+
 					masa = list() # el objeto que se forma con el candidato
 					while pixelesCola > 0: 
 						try:
@@ -187,6 +188,7 @@ class Procesamiento:
 									pixelesCola.append((mx, my)) #agreamos el vecino a la cola
 									pixelesVisitados[mx, my] = True # agreamos visitados
 						masa.append(pixelesCola.pop(0)) # borramos el candidato analizado
+					
 					
 					#CENTRO DE MASA
 					xmin = xmax = masa[0][0]
@@ -223,6 +225,7 @@ class Procesamiento:
 					#print "rango"
 					#print rangoMin, "|", rangoMax
 
+					'''
 					triangulo = False
 					for i in range(rangoMin, rangoMax):
 						if i == masaAcomulada:
@@ -236,6 +239,7 @@ class Procesamiento:
 						objeto += 1
 						draw.text(puntoCentro, "objeto"+str(objeto), fill="green")    					
 					#print "--------------------"
+					'''
 					
 		self.imagen.save(nombreImagenSalida)
 		if abrir:
