@@ -72,6 +72,22 @@ class AdministradorImagen(object):
 		self._imagenBinarizacion = valor
 	########## Fin propiedades #########
 
+	def aplicarGris(self):
+		print "Aplicando gris..."
+
+		nuevaImagen = Image.new("RGB", (self.obIma.ancho, self.obIma.alto))
+		newPixeles = nuevaImagen.load()
+
+		for x in range(self.obIma.ancho):
+			for y in range(self.obIma.alto):
+				p = self.obIma.pixeles[x,y]
+				prom = sum(p)/3
+				newPixeles[x,y] = (prom, prom, prom)
+
+		nuevaImagen.show() # mostramos en ventana
+		nuevaImagen.save('SalidaGRIS.png') # guardamos el archivo
+		print 'LISTO' 
+
 
 	def aplicarConvolucion(self):
 		print 'Aplicando convolucion...'
@@ -226,8 +242,74 @@ class AdministradorImagen(object):
 		imagenCopia.show() # mostramos en ventana
 		imagenCopia.save('SalidaConvexhull.png')
 		print 'LISTO'
-		
 
+	def cajaEnvolvente(self):
+		# cargamos la imagen base
+		temp = Image.open('SalidaBinarizacion.png')
+	   	
+	   	# y hacemos una copia para que no se modifique
+		imagenCopia = temp.copy()
+		draw = ImageDraw.Draw(imagenCopia) # creamos un objeto para dibujar
+
+		# recorremos los objetos tipos bordes detectados anteriormente
+		for objetos in self._bordes:
+			minX = self.obIma.ancho
+			maxX = 0
+			minY = self.obIma.alto
+			maxY = 0
+			for x,y in objetos:
+				if x < minX:
+					minX = x
+				if x > maxX:
+					maxX = x
+				if y < minY:
+					minY = y
+				if y > maxY:
+					maxY = y
+	
+			# eliminamos aquellos objetos que sean muy chicos
+			if minX < maxX and minY < maxY: 
+				print minX, minY, maxX, maxY
+				draw.rectangle(((minX, minY),(maxX, maxY)), outline="red")
+
+		imagenCopia.show() # mostramos en ventana
+		imagenCopia.save('SalidaCajaEnvolvente.png')
+		print 'LISTO'  
+
+	def detectarEsquinas(self):
+		gris = Image.open('SalidaGRIS.png')
+		pixGris = gris.load()
+
+		# creamos una copia para no modificar la imagen original
+		imagenCopia = gris.copy()
+		pixelesCopia = imagenCopia.load() 		
+
+
+		for x in range(self.obIma.ancho):
+			for y in range(self.obIma.alto):
+				vecindad = list()
+				for mx in range(x-1,x+2):
+					for my in range(y-1,y+2):
+						if mx>=0 and my>=0 and mx<self.obIma.ancho and my<self.obIma.alto:
+							vecindad.append(pixGris[mx, my][0])
+
+
+				vecindad.sort()
+
+
+				z = len(vecindad)/2
+				z = vecindad[z]
+
+				
+				
+				if (z - pixGris[x,y][1]) != 0:
+					pixelesCopia[x,y] = (255, 255, 0)
+
+
+		imagenCopia.show()
+		imagenCopia.save('SalidaEsquinas.png')
+
+		print 'LISTO'   
 
 
 
@@ -240,6 +322,10 @@ def main(nombreImagen, rangoBinarizacion):
 		Se ahorraria.... 8 lineas por metodo
 	'''
 
+	# aplicamos grises
+	ad.aplicarGris()
+
+	'''
 	# para buscar objetos o bordes es necesario convolucion y binarizacion
 	ad.aplicarConvolucion()
 	ad.aplicarBinarizacion(rangoBinarizacion)
@@ -247,8 +333,15 @@ def main(nombreImagen, rangoBinarizacion):
 	# buscamos objetos
 	ad.buscarObjetos()
 
+	# encerramos en una caja los objetos detectados    
+	ad.cajaEnvolvente()
+
 	# aplicar convexhull
 	ad.convexhull()
+	'''
+
+	# detectar esquinas
+	ad.detectarEsquinas()
 
 	
 
