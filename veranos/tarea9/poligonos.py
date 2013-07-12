@@ -35,16 +35,16 @@ class Imagen(object):
 
 
 
-
 class AdministradorImagen(object):
 	def __init__(self, imagen):
-		self._bordes = list()
 		self.obIma = imagen
+		self._objetos = list()
 
 	def aplicarGris(self):
 		print "Aplicando gris..."
 
-		nuevaImagen = Image.new("RGB", (self.obIma.ancho, self.obIma.alto))
+		# creamos una copia para no modificar la imagen original
+		nuevaImagen = Image.new('RGB', (self.obIma.ancho, self.obIma.alto))
 		newPixeles = nuevaImagen.load()
 
 		for x in range(self.obIma.ancho):
@@ -64,7 +64,7 @@ class AdministradorImagen(object):
 		pixelesBase = imagenBase.load()
 
 		# creamos una copia para no modificar la imagen original
-		nuevaImagen = Image.new("RGB", (self.obIma.ancho, self.obIma.alto))
+		nuevaImagen = Image.new('RGB', (self.obIma.ancho, self.obIma.alto))
 		newPixeles = nuevaImagen.load() 
 
 		for x in range(self.obIma.ancho):
@@ -116,7 +116,7 @@ class AdministradorImagen(object):
 		return pixelesEsquinas
 
 	def buscarObjetos(self, imagenBase, elemento='negro'):
-		print "Buscando objetos..."
+		print 'Buscando objetos...'
 
 		imagenCopia = imagenBase.copy()
 		tempPix = imagenCopia.load() 
@@ -158,7 +158,7 @@ class AdministradorImagen(object):
 								    pixelesCola.append((mx, my)) #agreamos el vecino a la cola
 								    pixelesVisitados[mx, my] = True # agreamos visitados
 						masa.append(pixelesCola.pop(0)) # borramos el candidato analizado
-					self._bordes.append(masa)
+					self._objetos.append(masa)
 
 					
 					nuevoColor = random.randrange(0,255)
@@ -172,17 +172,20 @@ class AdministradorImagen(object):
 		print 'LISTO' 
 
 
-	''' MEJORA: HACER QUE DIGA CUANTOS LADOS 
-		EL POLIGONO TIENE Y MUESTRE LOS LADOS QUE DETECTO. '''
+	''' MEJORA: HACER QUE DIGA CUANTOS LADOS TIENE
+		EL POLIGONO Y MUESTRE LOS LADOS QUE DETECTO. '''
 	def dibujarLineas(self, pixelesDetectados, imagen):
 		# METODO PENDIENTE
 		draw = ImageDraw.Draw(imagen)
 
 		for i in range(len(pixelesDetectados)-1):
 			draw.line((pixelesDetectados[i][0], pixelesDetectados[0][1],\
-						 pixelesDetectados[i+1][0], pixelesDetectados[i+1][0]), fill="red")
+						 pixelesDetectados[i+1][0], pixelesDetectados[i+1][0]), fill='red')
+
+	
 
 	def cajaEnvolvente(self, forma, imagen, mensaje=''):
+		# Recibe un objeto y en el busca sus cordenadas minimas en eje x, eje y
 		draw = ImageDraw.Draw(imagen) # creamos un objeto para dibujar
 
 		minX = self.obIma.ancho
@@ -200,56 +203,49 @@ class AdministradorImagen(object):
 				minY = y
 			if y > maxY:
 				maxY = y
-	
-			# eliminamos aquellos objetos que sean muy chicos
-		puntoCentro = (minX+maxX)/2, (minY+maxY)/2 # centro del objeto
-		if minX < maxX and minY < maxY: 
-			draw.text(puntoCentro, mensaje, fill="green")
 
+		# descartamos aquellos objetos que sean muy chicos
+		if minX < maxX and minY < maxY: 
+			if not mensaje:
+				# encerramos en un cuadrado el objeto recibido como parametro
+				draw.rectangle(((minX, minY), (maxX, maxY)), outline="red")
+			else:
+				# escribimos en el punto centro del objeto el mensaje recibido como parametro
+				puntoCentro = (minX+maxX)/2, (minY+maxY)/2 # centro del objeto
+				draw.text(puntoCentro, mensaje, fill="green")
 
 	
 	def detectarPoligonos(self, imagenBase, pixelesEsquinas):
-		print 'Detectando poligonos'
+		poligonos = list() # guarda las poligonos detectados
 
 		# creamos una copia para no modificar la imagen original
 		imagenCopia = imagenBase.copy()
 		pixelesCopia = imagenCopia.load() 
 
-
-
 		# buscamos los objetos tipo borde de cada figura
 		self.buscarObjetos(imagenBase) # le mandamos la imagen para que busque bordes
-
+		
+		# Algoritmo:
 		# ahora que ya tenemos todos los bordes y los pixeles tipo esquina
 		# el algoritmo trata de recorrer los bordes por figura y si el borde se topa con 
 		# mas de 3 esquinas significa que es un poligono.
 
-		for esquinas in pixelesEsquinas:
-			pixelesCopia[esquinas] = (0, 255, 0)
-
-
-		for objeto in self._bordes:
+		# recorremos los objetos detectados
+		for objeto in self._objetos:
 			lado = 0
-			pixelesDetectados = list() # para ver cuales lineas detecto el recorrido.
 			for pixel in objeto:
 				if pixel in pixelesEsquinas:
 					lado += 1
 					self.pintarVecinos(pixel[0], pixel[1], pixelesCopia)
-					pixelesDetectados.append(pixel)
-
-			
 			if lado >= 3: #significa que es un poligono de al menos 3 lados
-				self.cajaEnvolvente(objeto, imagenCopia, "poligono")
-
-
-
-
+				self.cajaEnvolvente(objeto, imagenCopia, 'poligono')
+				poligonos.append(objeto)
 
 		imagenCopia.show() # mostramos en ventana
 		imagenCopia.save('SalidaPoligonos.png') # guardamos el archivo
+		print 'Detectando poligonos...'
 		print 'LISTO'
-
-
+		return poligonos
 
 
 def main(nombreImagen, rangoBinarizacion):
@@ -266,7 +262,7 @@ def main(nombreImagen, rangoBinarizacion):
 	pixelesEsquinas = ad.detectarEsquinas(imaBinarizada)
 
 	# detectar poligonos
-	ad.detectarPoligonos(imaBinarizada, pixelesEsquinas);
+	poligonos = ad.detectarPoligonos(imaBinarizada, pixelesEsquinas)
 
 	
 
