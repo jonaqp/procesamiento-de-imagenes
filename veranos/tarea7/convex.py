@@ -243,6 +243,8 @@ class AdministradorImagen(object):
 		imagenCopia.save('SalidaConvexhull.png')
 		print 'LISTO'
 
+	''' MEJORA: DEBE ESTAR PREPARADA PARA RECIBIR UNICAMENTE EL OBJETO QUE DEBE
+		SER ENCERRADO. '''
 	def cajaEnvolvente(self):
 		# cargamos la imagen base
 		temp = Image.open('SalidaBinarizacion.png')
@@ -325,7 +327,7 @@ def main(nombreImagen, rangoBinarizacion):
 	# aplicamos grises
 	ad.aplicarGris()
 
-	'''
+	
 	# para buscar objetos o bordes es necesario convolucion y binarizacion
 	ad.aplicarConvolucion()
 	ad.aplicarBinarizacion(rangoBinarizacion)
@@ -338,12 +340,7 @@ def main(nombreImagen, rangoBinarizacion):
 
 	# aplicar convexhull
 	ad.convexhull()
-	'''
 
-	# detectar esquinas
-	ad.detectarEsquinas()
-
-	
 
 
 
