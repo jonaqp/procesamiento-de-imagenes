@@ -185,7 +185,7 @@ class AdministradorImagen(object):
 	
 
 	def cajaEnvolvente(self, forma, imagen, mensaje=''):
-		# Recibe un objeto y en el busca sus cordenadas minimas en eje x, eje y
+		# Recibe un objeto y en el busca sus cordenadas minimas/maximas en eje x, eje y
 		draw = ImageDraw.Draw(imagen) # creamos un objeto para dibujar
 
 		minX = self.obIma.ancho

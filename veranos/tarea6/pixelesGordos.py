@@ -203,8 +203,8 @@ class AdministradorImagen(object):
 			vecindad = obtenerVecinos(x, y, self.obIma.ancho, self.obIma.alto, tempPix)
 			
 			negros = [vecindad[w,z] for w in range(3)
-						for z in range(3)
-							if vecindad[w,z] == 0.0]
+										for z in range(3)
+											if vecindad[w,z] == 0.0]
 
 			if len(negros) >= 3:
 				for j in range(y-nivel, y+(nivel+1)): 

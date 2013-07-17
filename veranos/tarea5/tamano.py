@@ -63,6 +63,7 @@ class Imagen(object):
 		nuevaImagen.show() # mostramos en ventana
 		nuevaImagen.save("SALIDA.png") # guardamos el archivo
 		print 'listo'
+		return nuevaImagen
 
 
 def main(nombreImagen, newAncho, newAlto):
@@ -71,7 +72,7 @@ def main(nombreImagen, newAncho, newAlto):
 	ima._newAncho = newAncho
 	ima._newAlto = newAlto 
 
-	ima.redimensionar()
+	nuevaImagen = ima.redimensionar()
 	
 
 ##################################################
