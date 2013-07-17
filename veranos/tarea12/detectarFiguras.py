@@ -176,11 +176,11 @@ class PictureManage(object):
 		imagenCopia.save('SalidaObjetos.png') # guardamos el archivo
 		print 'LISTO'
 
-	def pintarVecinos(self, x, y, pixelesCopia):
+	def pintarVecinos(self, x, y, pixelesCopia, color=(255,0,0)):
 		for mx in range(x-1,x+2):
 			for my in range(y-1,y+2):
 				if mx>=0 and my>=0 and mx<self.obPic.w and my<self.obPic.h:
-					pixelesCopia[mx,my] = (255, 0, 0)
+					pixelesCopia[mx,my] = color
 
 	def esquinas(self, imagenBase):
 		print 'Detectando esquinas...'
@@ -304,7 +304,15 @@ class PictureManage(object):
 				puntoCentro = (minX+maxX)/2, (minY+maxY)/2 # centro del objeto
 				draw.text(puntoCentro, mensaje, fill="green")
 
+	def clasificarPoligono(self, objeto, imagen):
+		# recorremos la figura en busca de sus angulos
+
+		
+		return '4'
+
+
 	def detectarPoligonos(self, imagenBase, pixelesEsquinas):
+		figuras = {3:'Tri', 4:'Cua', 5:'Pen', 6:'Hex', 'mas':'6+'} 
 		poligonos = list() # guarda las poligonos detectados
 
 		# creamos una copia para no modificar la imagen original
@@ -325,10 +333,14 @@ class PictureManage(object):
 					lado += 1
 					self.pintarVecinos(pixel[0], pixel[1], pixelesCopia)
 			
-			''' MODIFICAR ESTA PARTE '''
-			if lado >= 4: #significa que es un poligono de al menos 3 lados
-				self.cajaEnvolvente(objeto, imagenCopia, 'P')
+			if lado in figuras:
+				self.cajaEnvolvente(objeto, imagenCopia, figuras[lado])
 				poligonos.append(objeto)
+			elif lado>6: # tiene mas de 6 lados
+				self.cajaEnvolvente(objeto, imagenCopia, figuras['mas'])
+				poligonos.append(objeto)
+			
+
 
 		if ABRIR:
 			imagenCopia.show() # mostramos en ventana
@@ -336,6 +348,7 @@ class PictureManage(object):
 		print 'Detectando poligonos...'
 		print 'LISTO'
 		return(poligonos, imagenCopia)
+
 
 	def dibujarCirculos(self, imagenBase, cordenadas, radio):
 		umbral = 2
@@ -530,9 +543,6 @@ def main(nombreImagen, rangoBinarizacion):
 
 	# detectar poligonos
 	poligonos, imaPoligonos = pm.detectarPoligonos(imaBinarizacion, pixelesEsquinas)
-
-	# CLASIFICAR LOS POLIGONOS DETECTADOS
-	''' PENDIENTE '''
 	
 	im.imReducida = imaPoligonos # se sustituye el valor de la imagen copia
 								 # esta trae las nuevas dimensiones.
