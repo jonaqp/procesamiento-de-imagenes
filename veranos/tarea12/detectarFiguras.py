@@ -385,7 +385,7 @@ class PictureManage(object):
 						draw.ellipse((x-radio, y-radio, x+radio, y+radio), outline ='red')
 						print '    * circulo con radio', radio    
 						break
-		self.obPic.imReducida.save('SalidaCirculos.png')
+		self.obPic.imReducida.save('SalidaPoligonos.png')
 
 
 	def zeros(self, n, m):

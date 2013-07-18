@@ -236,16 +236,13 @@ def main(nombreImagen, rangoBinarizacion):
 
   #Mascaras de convolucion
   mascaraX, mascaraY = sobel() # cargamos la mascara, tiene que ser de 3x3
-  ambos = [[0, 2, 2], [-2, 0, 2], [-2, -2, 0]]
 
   # aplicar convolucion para gx
   imaGradienteX = ad.aplicarConvolucion(mascaraX)
   # aplicar convolucion para gy
   imaGradienteY = ad.aplicarConvolucion(mascaraY) 
   # aplicar convolucion para gx y gy
-  #imaGradienteXY = ad.aplicarConvolucion(ambos)
   imaGradienteXY = ad.aplicarConvolucion(mascaraX, mascaraY)
-
 
   # aplicar binarizacion
   imaBinarizada = ad.aplicarBinarizacion(imaGradienteXY, rangoBinarizacion)
