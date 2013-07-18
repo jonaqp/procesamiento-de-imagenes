@@ -35,12 +35,6 @@ def difference(ima, ima2, UMBRAL=50):
             else:
                 newPix[x,y] = pix2[x,y] # stays the same
                 soloPix[x,y] = WHITE 
-                
-    '''
-    newImage.save(str(NUMBER+1)+'.png') # save the file
-    soloIma.save('sp'+str(NUMBER+1)+'.png')
-    NUMBER += 1
-    '''
     return(newImage, soloIma)
 
 
@@ -56,6 +50,7 @@ def detectMotion(images):
     print 'READY'
     return(motionPixels, pixeles)
 
+
 def saveImage(images):
     number = 0
     for i in images:
@@ -63,9 +58,7 @@ def saveImage(images):
         number += 1 
 
 
-
-def main(nombreGif):
-    
+def main(nombreGif):    
     (folder1, folder2) = Directory.createDirectory()
 
     # read the gif
@@ -84,12 +77,6 @@ def main(nombreGif):
     saveImage(pixeles)
     Directory.creatGif()
     Directory.backDirectory()
-
-
-    
-
-
-
 
 
 
