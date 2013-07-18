@@ -9,8 +9,6 @@ def createDirectory():
 	if not os.path.isdir(folder):
 	    os.mkdir(folder)
 
-	os.chdir(path) # back to directory
-
 	if not os.path.isdir(folder2):
 	    os.mkdir(folder2)
 
