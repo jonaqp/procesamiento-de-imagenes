@@ -166,10 +166,10 @@ class AdministradorImagen(object):
 
   def calcularDimensiones(self, objeto, imagen, mensaje=''):
     # Recibe un objeto y en el busca sus coordenadas minimas/maximas en eje x, eje y
+    # y una imagen en la cual dibujamos los resultados(lineas)
 
-    w = self.obPic.w
-    h = self.obPic.h
-    pixOriginales = self.obPic.pixeles
+    w = self.obIma.ancho
+    h = self.obIma.alto
 
     draw = ImageDraw.Draw(imagen) # creamos un objeto para dibujar
 
@@ -190,21 +190,19 @@ class AdministradorImagen(object):
         maxY = y
 
     puntoCentro = (minX+maxX)/2, (minY+maxY)/2 # centro del objeto
+    radio = puntoCentro[0] - minX
+    draw.ellipse((minX-radio, minY-radio, maxX+radio, maxY+radio), outline ='red')
 
-
-    '''
-    # descartamos aquellos objetos que sean muy chicos
-    if minX < maxX and minY < maxY: 
-      if not mensaje:
-        # encerramos en un cuadrado el objeto recibido como parametro
-        draw.rectangle(((minX, minY), (maxX, maxY)), outline="red")
-      else:
-        # escribimos en el punto centro del objeto el mensaje recibido como parametro
-        puntoCentro = (minX+maxX)/2, (minY+maxY)/2 # centro del objeto
-        draw.text(puntoCentro, mensaje, fill="green")
-    '''
 
   def detectarSimilitud(self, imagenBase):
+      self._objetos = self._objetos[1:] # eliminamos el marco de la imagen
+      
+      imagenCopia = imagenBase.copy()
+      tempPix = imagenCopia.load()       
+
+      for i in self._objetos:
+        self.calcularDimensiones(imagenCopia)
+        
       return
 
 
