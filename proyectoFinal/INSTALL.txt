@@ -15,7 +15,7 @@ http://opencv.willowgarage.com/wiki/InstallGuide
 
 Ejecutar el instalador y seguir las instrucciones.
 
-OpenCV - Python
+OpenCV - Linux
 ===============
 
 En Ubuntu, ejecutar el comando:
